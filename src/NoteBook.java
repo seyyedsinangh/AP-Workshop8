@@ -25,7 +25,7 @@ public class NoteBook implements Serializable {
         NoteBook noteBook = readFromFile("notebook.ser");
         if(noteBook == null) return;
         try (FileWriter export = new FileWriter(title)){
-            export.write(title + "\n" + noteBook.notes.get(title).getDate() + noteBook.notes.get(title).getText() + "\n");
+            export.write(title + "\t" + noteBook.notes.get(title).getDate() + "\n" + noteBook.notes.get(title).getText());
         }catch (IOException e) {e.printStackTrace();}
     }
     public void addNote(Note note) {notes.put(note.getTitle(), note);}

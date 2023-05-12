@@ -16,34 +16,30 @@ public class CommandProcessor {
         int command = 0;
         while(command != 5) {
             try {
-                process(command);
+                showMenu();
                 command = Integer.parseInt(scanner.nextLine());
+                switch (command) {
+                    case 1:
+                        addNote();
+                        break;
+                    case 2:
+                        removeNote();
+                        break;
+                    case 3:
+                        showNote();
+                        break;
+                    case 4:
+                        export();
+                        break;
+                    case 5:
+                        System.out.println("Goodluck :)");
+                        return;
+                    default:
+                        System.out.println("Enter number in range!");
+                }
             }catch (NumberFormatException e) {
                 System.out.println("please enter a number");
             }
-        }
-    }
-    public void process(int command) {
-        showMenu();
-        if(command == 0) command = Integer.parseInt(scanner.nextLine());
-        switch (command) {
-            case 1:
-                addNote();
-                break;
-            case 2:
-                removeNote();
-                break;
-            case 3:
-                showNote();
-                break;
-            case 4:
-                export();
-                break;
-            case 5:
-                System.out.println("Goodluck :)");
-                return;
-            default:
-                System.out.println("Enter number in range!");
         }
     }
 
@@ -56,7 +52,7 @@ public class CommandProcessor {
                 e.printStackTrace();
             }
         }
-        noteBook = new NoteBook();
+        else noteBook = new NoteBook();
     }
     
     private void showMenu() {System.out.println("1.Add\n2.Remove\n3.Notes\n4.Export\n5.Exit");}
@@ -68,7 +64,7 @@ public class CommandProcessor {
         while (true) {
             line = scanner.nextLine();
             if(line.equals("#")) break;
-            lines.append(line);
+            lines.append("\n" + line);
         }
 
         return lines.toString();
