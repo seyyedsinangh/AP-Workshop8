@@ -1,80 +1,141 @@
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Scanner;
 
 public class CommandProcessor {
-    private static HashMap<String,Note> notes;
+    private NoteBook noteBook;
+    private static Scanner scanner = new Scanner(System.in);
 
     public CommandProcessor() {
-        this.notes = new HashMap<>();
+        initializeNoteBook();
     }
-    public static void process() {
-        Scanner sc = new Scanner(System.in);
-        while (true) {
-            System.out.println("1.Add\n2.Remove\n3.Notes\n4.Export\n5.Exit\n>>");
+    
+    public void runCommandLoop() {
+        int command = 0;
+        while(command != 5) {
             try {
-                switch (Integer.parseInt(sc.nextLine())) {
-                    case 1:
+                process(command);
+                command = Integer.parseInt(scanner.nextLine());
+            }catch (NumberFormatException e) {
+                System.out.println("please enter a number");
+            }
+        }
+    }
+    public void process(int command) {
+        showMenu();
+        if(command == 0) command = Integer.parseInt(scanner.nextLine());
+        switch (command) {
+            case 1:
+                addNote();
+                break;
+            case 2:
+                removeNote();
+                break;
+            case 3:
+                showNote();
+                break;
+            case 4:
+                export();
+                break;
+            case 5:
+                System.out.println("Goodluck :)");
+                return;
+            default:
+                System.out.println("Enter number in range!");
+        }
+    }
 
-                        break;
-                    case 2:
+    private void initializeNoteBook() {
+        File noteBookFile = new File("notebook.ser");
+        if(noteBookFile.exists()) {
+            try(FileInputStream fIn = new FileInputStream("notebook.ser"); ObjectInputStream in = new ObjectInputStream(fIn)) {
+                noteBook = (NoteBook) in.readObject();
+            }catch(IOException | ClassNotFoundException e){
+                e.printStackTrace();
+            }
+        }
+        noteBook = new NoteBook();
+    }
+    
+    private void showMenu() {System.out.println("1.Add\n2.Remove\n3.Notes\n4.Export\n5.Exit");}
 
-                        break;
-                    case 3:
+    private String getText() {
+        StringBuilder lines = new StringBuilder();
+        String line = "";
+        System.out.println("Enter your text (enter # to finish): ");
+        while (true) {
+            line = scanner.nextLine();
+            if(line.equals("#")) break;
+            lines.append(line);
+        }
 
-                        break;
-                    case 4:
+        return lines.toString();
+    }
 
-                        break;
-                    case 5:
 
-                        System.out.println("Goodluck :)");
-                        return;
-                    default:
-                        System.out.println("Enter number in range!");
-                }
-            } catch (Exception e) {
-                System.out.println("Enter input like human!");
+    private void addNote() {
+        System.out.println("Enter your title or enter return to get back:\n");
+        String title = scanner.nextLine();
+
+        if (!title.equals("return")) {
+            String text = getText();
+            Note note = new Note(title, text);
+            noteBook.addNote(note);
+
+            try(FileOutputStream fOut = new FileOutputStream("notebook.ser"); ObjectOutputStream out = new ObjectOutputStream(fOut)) {
+                out.writeObject(noteBook);
+            }
+            catch (FileNotFoundException e) {
+                System.out.println("File not found!");
+            }
+            catch (IOException e) {
+                e.printStackTrace();
             }
         }
     }
 
-    private void addNote() {
-        Scanner sc = new Scanner(System.in);
-        System.out.println("Enter your title or enter return to get back:\n>>");
-        String title = sc.next();
-        switch (title) {
-            case "return":
-                return;
-            default:
-                ArrayList<String> lines = new ArrayList<>();
-                System.out.println("Enter your text (enter # to finish):>>");
-                while (true) {
-                    String line = sc.next();
-                    if (line.equals("#")) break;
-                    lines.add(line);
-                }
-                String text = "";
-                for (String line: lines) {
-                    text += line;
-                }
-                Note note = new Note(title,text);
-                try {
-                    FileOutputStream fOut = null;
-                    try {
-                        fOut = new FileOutputStream("notebook.bin");
-                    } catch (IOException e) {
-                        FileInputStream fIn = new FileInputStream("notebook.bin");
-                        fIn.close();
-                        fOut = new FileOutputStream("notebook.bin");
-                    }
-                    ObjectOutputStream out = new ObjectOutputStream(fOut);
-                    out.close();
-                    fOut.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+    private void removeNote() {
+        noteBook.showNotes();
+
+        System.out.println("choose one of the notes and enter the title, or enter return to get back to main menu.");
+        String command = scanner.nextLine();
+
+        if(!command.equals("return")) {
+            try(FileOutputStream fOut = new FileOutputStream("notebook.ser"); ObjectOutputStream out = new ObjectOutputStream(fOut)) {
+                noteBook.removeNote(command);
+                out.writeObject(noteBook);
             }
+            catch (FileNotFoundException e) {
+                System.out.println("File not found!");
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
+
+    private void showNote() {
+        noteBook.showNotes();
+
+        System.out.println("choose one of the notes and enter the title, or enter return to get back to main menu.");
+        String noteToRemove = scanner.nextLine();
+
+        if(!noteToRemove.equals("return")) {
+            noteBook.showNote(noteToRemove);
+        }
+    }
+
+    private void export() {
+        System.out.println("choose a note to export: \n");
+        noteBook.showNotes();
+
+        System.out.println("choose one of the notes and enter the title, or enter return to get back to main menu.");
+        String toExport = scanner.nextLine();
+        if(!toExport.equals("return")) {
+            noteBook.export(toExport);
+        }
+    }
+
 }

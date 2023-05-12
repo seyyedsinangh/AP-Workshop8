@@ -12,4 +12,9 @@ public class Note implements Serializable {
         this.date = LocalDate.now();
     }
 
+    public String getTitle() {return title;}
+
+    public String getText() {return text;}
+
+    public LocalDate getDate() {return date;}
 }
